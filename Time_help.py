@@ -1,3 +1,4 @@
+
 import openai
 import requests
 import json
@@ -182,13 +183,3 @@ if __name__ == "__main__":
     save_log(tasks,response)
 
 
-
-
-
-
-
-
-
-
-
-    
