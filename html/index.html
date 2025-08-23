@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>智能日程生成系统</title>
+</head>
+
+
+
+<body>
+    <style>
+
+        body {
+            background-color: rgb(248, 249, 250); 
+            background-image :url("{{ url_for('static', filename='top.png') }}");
+        }
+
+        .main-top {
+            background-color: rgb(248, 249, 250,0.7);
+            height: 1300px;
+            margin: 100px;
+            margin-top: 50px;
+            padding: 0px;
+        }
+
+        .main-input{
+
+            margin:100px;
+
+        }
+
+        .main-input li{
+
+            margin-bottom:50px;
+
+        }
+
+        li {
+            list-style-type:none;
+        }
+
+        .out{
+            border : solid;
+            margin : 0px;
+            padding : 0px;
+            height : 800px;
+        }
+
+    </style> 
+
+    <div class="main-top">
+
+        <!--  标题介绍 -->
+        <div>
+            <h1 style="text-align:center;">智能日程生成系统</h1>
+            <p style="text-align:center;">
+                根据您的任务、位置和当前天气，
+                生成高效的时间安排建议
+            </p>
+        </div>
+        
+
+        <!-- 数据输入 -->
+        <div class="main-input">
+            <ul>
+
+                <li>
+                    
+                    <label for="province">请输入您所在省份：</label>
+
+                    
+                    <input type="text" id="city1" placeholder="例如：广东"/>
+
+                </li>
+
+
+                <li>
+
+                    <label for="province">请输入您所在城市：</label>
+
+
+                    <input type="text" id="city2" placeholder="例如：深圳" />
+
+                </li>
+
+
+                <li>
+
+                    <label for="province">请输入您想要安排的行程</label>
+
+
+                    <input type="text" id="tasks" placeholder="例如：约会/打球/购物..." />
+
+                </li>
+
+                <li>
+
+                    <button id = "run">点击生成</button>
+                    <span id="run_text">正在生成中...</span>
+
+                </li>
+
+            </ul>
+
+            <!--  结果显示区域 -->
+	     
+            <div id="out" class="out">
+
+                <!-- 保留文本格式  -->
+	            <pre id = "out1">
+                     生成结果：
+	            </pre>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        // 文件加载完成后执行函数
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // 获取页面元素引用
+
+            // 省份输入框
+            const province_type = document.getElementById("city1");
+
+            // 城市输入框
+            const city_type = document.getElementById("city2");
+
+            // 任务输入框
+            const tasks_type = document.getElementById("tasks");
+
+            // 生成按钮
+            const run1 = document.getElementById("run");
+
+
+            // 结果输出
+            const out = document.getElementById("out");
+	    
+            const out1 = document.getElementById("out1");
+
+
+            // 加载文字
+            const run_text = document.getElementById("run_text");
+
+
+            // 初始化隐藏结果显示栏及加载栏
+            out.hidden = true
+            run_text.hidden = true
+
+
+            // 为生成按钮添加点击事件监听器
+            run1.addEventListener('click', async function () {
+
+                // 获取输入值
+                const province = province_type.value;
+                const city = city_type.value;
+                const tasks = tasks_type.value;
+
+
+                // 判断是否输入完成
+                if (province.length < 1 || city.length < 1 || tasks.length < 1) {
+
+                    alert("请填写所有字段后提交！")
+
+                    // 未填写则退出函数
+                    return;
+
+                }
+
+                // 如果已经填写则执行
+
+                // 防止重复点击 设置不可点击
+                run1.disabled = true;
+
+                // 显示正在加载
+                run_text.hidden = false;
+
+                // 使用Fetch API发送POST请求到后端
+                // await 异步操作
+                // api/generate 路由名
+                const response = await fetch("/api/generate", {
+
+                    // post方式发送请求
+                    method: "POST",
+
+
+                    headers: {
+
+                        // 指定请求内容类型为JSON
+                        "Content-Type": 'application/json'
+
+                    },
+
+                    // 将javascript对象转为json字符串
+                    body: JSON.stringify({
+
+                        // api请求参数
+                        province: province,
+                        city: city,
+                        tasks: tasks
+
+                    })
+
+                })
+
+                // 如果请求失败，解析错误信息
+                if (!response.ok) {
+
+                    const e = await response.json();
+                    alert("请求失败：" + e);
+
+                }
+
+
+                // 如果请求成功，解析响应数据
+                const data = await response.json();
+
+
+                // 解锁按钮
+                run1.disabled = false;
+
+                // 显示结果输出栏
+                out.hidden = false;
+                run_text.hidden = true;
+
+                // 显示结果
+                out1.textContent = data.schedule;
+
+
+            })
+
+
+        });
+
+    </script>
+
+
+</body>
+
+
+
+</html>
